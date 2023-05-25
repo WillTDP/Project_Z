@@ -1,17 +1,24 @@
 const express = require("express");
+const fs = require("fs");
 const multer = require("multer");
 
 const app = express();
 const PORT = 3000;
 
-// Set up multer middleware to handle multipart/form-data
 const upload = multer();
-
-// Start express on the defined port
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 
-// Endpoint for the webhook
-app.post("/hook", upload.any(), (req, res) => {
-  console.log(req.body); // Log the entire request body
-  res.status(200).end(); // Responding is important
+app.post("/hook", upload.none(), (req, res) => {
+  const jsonData = req.body;
+  
+  fs.writeFile("./public/emby.json", JSON.stringify(jsonData), { encoding: "utf8" }, (err) => {
+      if (err) {
+      console.log("Error writing to emby.json:", err);
+      res.status(500).end();
+      return;
+    }
+
+    console.log("Data written to emby.json:", jsonData);
+    res.status(200).end();
+  });
 });
