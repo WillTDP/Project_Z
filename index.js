@@ -9,16 +9,17 @@ const upload = multer();
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 
 app.post("/hook", upload.none(), (req, res) => {
-  const jsonData = req.body;
-  
-  fs.writeFile("./public/emby.json", JSON.stringify(jsonData), { encoding: "utf8" }, (err) => {
-      if (err) {
-      console.log("Error writing to emby.json:", err);
-      res.status(500).end();
-      return;
-    }
+  console.log("Raw body:", req.body);
 
-    console.log("Data written to emby.json:", jsonData);
+  const jsonData = req.body;
+
+  try {
+    const jsonString = JSON.stringify(jsonData, null, 2); // Convert to JSON string
+    fs.writeFileSync("./public/emby.json", formattedJsonString, "utf8");
+    console.log("Data written to emby.json:\n", formattedJsonString);
     res.status(200).end();
-  });
+  } catch (err) {
+    console.log("Error writing to emby.json:", err);
+    res.status(500).end();
+  }
 });
